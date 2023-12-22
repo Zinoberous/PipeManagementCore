@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-Prototype-4468c483-03f5-407a-bdbc-a70d7f8fa952</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PipeServiceCore\PipeServiceCore.csproj" />
+    <ProjectReference Include="..\PM.Prototype\PM.Prototype.csproj" />
+  </ItemGroup>
+</Project>
