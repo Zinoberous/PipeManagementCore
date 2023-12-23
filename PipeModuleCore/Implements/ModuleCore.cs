@@ -7,11 +7,11 @@ namespace PipeModuleCore.Implements
     {
         protected readonly ILogger<T> _logger = logger;
 
-        public async Task InvokeAsync()
+        public void Invoke()
         {
-            await ExecuteAsync();
+            Execute();
         }
 
-        protected abstract Task ExecuteAsync();
+        protected abstract void Execute();
     }
 }

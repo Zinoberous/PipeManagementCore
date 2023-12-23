@@ -2,8 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PipeManagementCore;
 using PipeManagementCore.Interfaces;
+using PipeServiceCore.Models;
 using System.Text;
 
 namespace PipeServiceCore
@@ -12,44 +14,73 @@ namespace PipeServiceCore
     {
     }
 
-    public abstract class WorkerCore<T>(ILogger<T> logger, IConfiguration config, IServiceProvider serviceProvider, IHostApplicationLifetime applicationLifetime)
-        : BackgroundService, IWorker where T : class, IWorker
+    public abstract class WorkerCore<T> : BackgroundService, IWorker where T : class, IWorker
     {
-        protected readonly ILogger<T> _logger = logger;
-        protected readonly IConfiguration _config = config;
-        protected readonly IServiceProvider _serviceProvider = serviceProvider;
+        protected readonly ILogger<T> _logger;
+        protected readonly IConfiguration _config;
+        protected readonly IServiceProvider _serviceProvider;
+        protected readonly IHostApplicationLifetime _applicationLifetime;
 
-        private readonly IHostApplicationLifetime _applicationLifetime = applicationLifetime;
+        private readonly IDisposable _globalStopMonitor;
+
+        public WorkerCore
+        (
+            ILogger<T> logger,
+            IConfiguration config,
+            IServiceProvider serviceProvider,
+            IHostApplicationLifetime applicationLifetime,
+            IOptionsMonitor<GlobalStopMonitor> globalStopMonitor
+        )
+        {
+            _logger = logger;
+            _config = config;
+            _serviceProvider = serviceProvider;
+            _applicationLifetime = applicationLifetime;
+
+            _globalStopMonitor = globalStopMonitor.OnChange(monitor =>
+            {
+                _logger.LogInformation("{globalStop}", monitor.GlobalStop);
+            })!;
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Service gestartet");
-
             // TODO: load passwords
             Passwords.Set("MyPassword", Convert.ToBase64String(Encoding.UTF8.GetBytes("Pa55w0r7")));
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var moduleTypes = _config.GetSection("Modules").GetChildren().Select(x => x.Value!);
+                //var moduleTypes = _config.GetSection("Modules").GetChildren().Select(x => x.Value!);
 
-                foreach (var moduleType in moduleTypes)
-                {
-                    var module = (IModule)_serviceProvider.GetRequiredService(Type.GetType(moduleType)!);
+                //foreach (var moduleType in moduleTypes)
+                //{
+                //    var service = _serviceProvider.GetRequiredService(Type.GetType(moduleType)!);
 
-                    await module.InvokeAsync();
-                }
+                //    if (service is IModule module)
+                //    {
+                //        module.Invoke();
+                //    }
+                //    else if (service is IModuleAsync moduleAsync)
+                //    {
+                //        await moduleAsync.InvokeAsync();
+                //    }
+                //}
 
-                _applicationLifetime.StopApplication();
+                _logger.LogInformation("...");
 
-                break;
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+
+                // TODO: raus
+                //_applicationLifetime.StopApplication();
+                //break;
             }
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            await base.StopAsync(cancellationToken);
+            _globalStopMonitor.Dispose();
 
-            _logger.LogInformation("Service beendet");
+            await base.StopAsync(cancellationToken);
         }
     }
 }

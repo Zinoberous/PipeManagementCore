@@ -2,6 +2,6 @@
 {
     public interface IModule
     {
-        Task InvokeAsync();
+        void Invoke();
     }
 }

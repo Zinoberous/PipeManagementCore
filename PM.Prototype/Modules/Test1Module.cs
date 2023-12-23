@@ -6,7 +6,7 @@ using System.Text;
 
 namespace PM.Prototype.Modules
 {
-    public class Test1Module(ILogger<Test1Module> logger, IDependency dependency) : ModuleCore<Test1Module>(logger)
+    public class Test1Module(ILogger<Test1Module> logger, IDependency dependency) : ModuleAsyncCore<Test1Module>(logger)
     {
         private readonly IDependency _dependency = dependency;
 

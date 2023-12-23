@@ -1,0 +1,6 @@
+{
+  "Modules": [
+    "PM.Prototype.Modules.Test1Module,PM.Prototype",
+    "PM.Prototype.Modules.Test2Module,PM.Prototype"
+  ]
+}

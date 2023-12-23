@@ -5,11 +5,11 @@ namespace PM.Prototype.Modules
 {
     public class Test2Module(ILogger<Test2Module> logger) : ModuleCore<Test2Module>(logger)
     {
-        protected override async Task ExecuteAsync()
+        protected override void Execute()
         {
             _logger.LogInformation($"{nameof(Test2Module)}");
 
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            Thread.Sleep(TimeSpan.FromSeconds(1));
         }
     }
 }

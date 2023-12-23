@@ -7,11 +7,13 @@ using PS.Prototype;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services
-    .AddService<Worker>()
-    .AddModule<Test1Module>()
-    .AddModule<Test2Module>()
-    .AddDependency<IDependency, Dependency>(serviceProvider =>
+var services = builder.Services;
+
+services
+    .AddService<Worker>(builder)
+    .AddTransient<Test1Module>()
+    .AddTransient<Test2Module>()
+    .AddTransient<IDependency, Dependency>(serviceProvider =>
     {
         // TODO: get password
         var password = Passwords.Get("MyPassword");
