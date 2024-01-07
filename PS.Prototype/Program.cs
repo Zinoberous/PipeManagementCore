@@ -1,4 +1,4 @@
-using PipeManagementCore;
+using PipeServiceCore;
 using PipeServiceCore.Extensions;
 using PM.Prototype.Implements;
 using PM.Prototype.Interfaces;

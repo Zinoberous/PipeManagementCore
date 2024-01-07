@@ -6,15 +6,12 @@ using Microsoft.Extensions.Options;
 using PipeManagementCore;
 using PipeManagementCore.Interfaces;
 using PipeServiceCore.Models;
+using Serilog.Context;
 using System.Text;
 
 namespace PipeServiceCore
 {
-    public interface IWorker
-    {
-    }
-
-    public abstract class WorkerCore<T> : BackgroundService, IWorker where T : class, IWorker
+    public abstract class WorkerCore<T> : BackgroundService where T : class, IHostedService
     {
         protected readonly ILogger<T> _logger;
         protected readonly IConfiguration _config;
@@ -45,34 +42,40 @@ namespace PipeServiceCore
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            _logger.LogInformation("init");
+
             // TODO: load passwords
             Passwords.Set("MyPassword", Convert.ToBase64String(Encoding.UTF8.GetBytes("Pa55w0r7")));
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                //var moduleTypes = _config.GetSection("Modules").GetChildren().Select(x => x.Value!);
+                using (LogContext.PushProperty("SessionId", Guid.NewGuid()))
+                using (LogContext.PushProperty("Timestamp", DateTime.UtcNow.ToString("yyyyMMddHHmmss")))
+                {
+                    //var moduleTypes = _config.GetSection("Modules").GetChildren().Select(x => x.Value!);
 
-                //foreach (var moduleType in moduleTypes)
-                //{
-                //    var service = _serviceProvider.GetRequiredService(Type.GetType(moduleType)!);
+                    //foreach (var moduleType in moduleTypes)
+                    //{
+                    //    var service = _serviceProvider.GetRequiredService(Type.GetType(moduleType)!);
 
-                //    if (service is IModule module)
-                //    {
-                //        module.Invoke();
-                //    }
-                //    else if (service is IModuleAsync moduleAsync)
-                //    {
-                //        await moduleAsync.InvokeAsync();
-                //    }
-                //}
+                    //    if (service is IModule module)
+                    //    {
+                    //        module.Invoke();
+                    //    }
+                    //    else if (service is IModuleAsync moduleAsync)
+                    //    {
+                    //        await moduleAsync.InvokeAsync();
+                    //    }
+                    //}
 
-                _logger.LogInformation("...");
+                    _logger.LogInformation("run");
 
-                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                    await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                }
 
                 // TODO: raus
-                //_applicationLifetime.StopApplication();
-                //break;
+                _applicationLifetime.StopApplication();
+                break;
             }
         }
 

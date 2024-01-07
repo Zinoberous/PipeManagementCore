@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using PipeManagementCore;
 using PipeModuleCore.Implements;
 using PM.Prototype.Interfaces;
-using System.Text;
 
 namespace PM.Prototype.Modules
 {
@@ -14,7 +12,7 @@ namespace PM.Prototype.Modules
         {
             _logger.LogInformation($"{nameof(Test1Module)}");
 
-            _logger.LogWarning("{password}", Passwords.Decrypt(_dependency.Password));
+            _logger.LogWarning("{password}", _dependency.Password);
 
             await _dependency.SendAsyc();
         }
